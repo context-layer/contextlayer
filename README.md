@@ -1,6 +1,6 @@
 # Context Layer
 
-> Current release: v1.0: Flow and Pulse execution modes available
+> Current release: v1.0 - Flow and Pulse execution modes available
 
 Runtime execution infrastructure for LLM systems.
 
