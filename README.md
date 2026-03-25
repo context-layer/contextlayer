@@ -1,6 +1,6 @@
 # Context Layer
 
-> Current release: v1.0 — Flow and Pulse execution modes available
+> Current release: v1.0: Flow and Pulse execution modes available
 
 Runtime execution infrastructure for LLM systems.
 
@@ -45,42 +45,42 @@ outputs across every step.
 ### Pulse
 
 For chat-based and conversational systems. Runs outside of workflow
-session state — no step tracking, no workflow termination required.
+session state. No step tracking, no workflow termination required.
 
 ---
 
-## Quick start — Flow
+## Quick start (Flow)
 
 The wrapper is copied into your codebase rather than installed as a
-package — this keeps the execution boundary explicit and under your
+package. This keeps the execution boundary explicit and under your
 control.
 
-**Step 1 — provision execution authority**
+**Step 1: provision execution authority**
 
 Sign up at [cl.kaisek.com](https://cl.kaisek.com), create a project,
 and click Provision Execution Authority. The console generates your
 wrapper script and API key.
 
-**Step 2 — set API key**
+**Step 2: set API key**
 
 ```
 export CL_API_KEY="your_flow_api_key"
 ```
 
-**Step 3 — import wrapper**
+**Step 3: import wrapper**
 
 ```
 const { invokeCL } = require("./flow-wrapper");
 ```
 
-**Step 4 — run Flow execution**
+**Step 4: run Flow execution**
 
 ```
 const res = await invokeCL("Generate invoice");
 console.log(res.output);
 ```
 
-**Step 5 — final step**
+**Step 5: final step**
 
 ```
 const res = await invokeCL("Finalize invoice", { workflowEnd: true });
@@ -92,7 +92,7 @@ if (res.terminated) {
 
 **Stateless execution (optional)**
 
-Runs outside of workflow session state — no step tracking, no
+Runs outside of workflow session state. No step tracking, no
 termination required.
 
 ```
@@ -103,21 +103,21 @@ Note: `stateless: true` cannot be combined with `{ workflowEnd: true }`.
 
 ---
 
-## Quick start — Pulse
+## Quick start (Pulse)
 
-**Step 1 — set API key**
+**Step 1: set API key**
 
 ```
 export CL_API_KEY="your_pulse_api_key"
 ```
 
-**Step 2 — import wrapper**
+**Step 2: import wrapper**
 
 ```
 const { invokeCL } = require("./pulse-wrapper");
 ```
 
-**Step 3 — run Pulse execution**
+**Step 3: run Pulse execution**
 
 ```
 await invokeCL("User message");
@@ -145,7 +145,7 @@ Context Layer never accesses your LLM API keys directly.
 
 - Node.js 18+
 - An LLM provider API key
-- A Context Layer account — [cl.kaisek.com](https://cl.kaisek.com)
+- A Context Layer account: [cl.kaisek.com](https://cl.kaisek.com)
 
 ## Learn more
 
