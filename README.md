@@ -1,6 +1,6 @@
 # Context Layer
 
-> Current release: v1.0 - Flow and Pulse execution modes available
+> Current release: v1.1 - Verification Authority
 
 Runtime execution infrastructure for LLM systems.
 
@@ -23,7 +23,7 @@ Tested on a strict multi-step workflow with GPT-4o mini:
 |  | Success Rate |
 | --- | --- |
 | Regular LLM calls | ~7% |
-| With Context Layer | 70%+ |
+| With Context Layer v1.1 | 81.7% |
 
 Same model. The difference was infrastructure controlling how execution proceeded, not a better prompt.
 
@@ -32,6 +32,7 @@ Same model. The difference was infrastructure controlling how execution proceede
 - Constraints set in step 1 persist through step N
 - Session state is managed at the infrastructure level, not the prompt level
 - Model outputs are verified before execution continues
+- Violations are reported authoritatively by the runtime, not inferred from model output
 - Workflows run deterministically, not probabilistically
 
 ## Execution modes
