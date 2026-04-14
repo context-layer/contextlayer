@@ -1,6 +1,6 @@
 # Context Layer
 
-> Current release: v2.2 — Persistent Constraint State + MCP Interface
+> Current release: v2.2 — Persistent Constraint State + Unified Execution + MCP Interface
 
 Runtime execution infrastructure for reliable LLM systems.
 
@@ -65,13 +65,45 @@ v2.2 makes it **reliable under real-world conditions**.
 
 ---
 
+### Unified execution interface (MCP)
+
+Context Layer exposes a unified execution endpoint for MCP-based integrations:
+
+POST /api/execute
+
+* Used by MCP to route execution internally
+* Supports both Flow and Pulse modes via a single entry point
+* Centralizes validation and execution control for external clients
+
+Note:
+
+* Wrapper-based integrations continue to use `/api/flow` and `/api/pulse`
+* `/api/execute` is the MCP-facing execution surface
+
+---
+
+### Usage types (Agent vs Workflow)
+
+Execution behavior is now determined by usage type:
+
+* **Agent mode** — continuous execution, no explicit termination
+* **Workflow mode** — explicit lifecycle with `workflowEnd` and `stateless`
+
+In Agent mode:
+
+* `workflowEnd` is not allowed
+* `stateless` is not allowed
+
+This enables external agents (via MCP) to run flows without managing lifecycle manually.
+
+---
+
 ### MCP interface (external execution)
 
 Context Layer is now accessible via Model Context Protocol (MCP).
 
 * Transport: Server-Sent Events (SSE)
 * Endpoint: `https://mcp.cl.kaisek.com/sse`
-* Tool: `send_message(message: string)`
 
 This enables:
 
@@ -103,6 +135,10 @@ For multi-step workflows.
 Each `invokeCL()` call represents one workflow step.
 Context Layer manages constraint enforcement, state, and verification across the entire workflow.
 
+Flow now supports continuous execution across multiple calls.
+
+When used in Agent mode (via MCP or wrapper), sessions persist automatically and do not require explicit termination.
+
 ---
 
 ### Pulse
@@ -110,7 +146,9 @@ Context Layer manages constraint enforcement, state, and verification across the
 For chat-based and conversational systems.
 
 Runs outside of workflow session state.
-No step tracking, no workflow termination required.
+
+* no step tracking
+* no workflow termination required
 
 ---
 
@@ -119,6 +157,8 @@ No step tracking, no workflow termination required.
 ### Flow (wrapper-based)
 
 Use the Context Layer wrapper inside your codebase.
+
+---
 
 **Step 1: provision execution authority**
 
@@ -152,7 +192,7 @@ console.log(res.output);
 
 ---
 
-**Step 5: final step**
+**Step 5: final step (Workflow mode only)**
 
 ```id="flowend"
 const res = await invokeCL("Finalize invoice", { workflowEnd: true });
@@ -164,19 +204,24 @@ if (res.terminated) {
 
 ---
 
-**Stateless execution (optional)**
+**Stateless execution (Workflow mode only)**
 
 ```id="flowstateless"
 await invokeCL("Quick validation", { stateless: true });
 ```
 
-Note: `stateless: true` cannot be combined with `{ workflowEnd: true }`.
+Note:
+
+* `stateless: true` cannot be combined with `{ workflowEnd: true }`
+* Both are rejected in Agent mode
 
 ---
 
 ### Pulse (chat / conversational)
 
 Use Pulse for chat-based or conversational systems.
+
+---
 
 **Step 1: set API key**
 
@@ -200,16 +245,13 @@ const { invokeCL } = require("./pulse-wrapper");
 await invokeCL("User message");
 ```
 
-Pulse runs outside of workflow session state:
-
-* no step tracking
-* no workflow termination
-
 ---
 
-### MCP (no wrapper)
+## MCP (no wrapper)
 
-Call Context Layer directly via MCP.
+Call Context Layer via MCP (recommended for agent integrations).
+
+---
 
 **Connect to:**
 
@@ -222,18 +264,83 @@ https://mcp.cl.kaisek.com/sse
 **Available tool:**
 
 ```id="mcptool"
-send_message(message: string)
+send_message(
+  message?: string,
+  step_description?: string,
+  state?: object,
+  context?: string,
+  constraint?: string,
+  workflow_end?: boolean,
+  stateless?: boolean
+)
 ```
 
 ---
 
-**Usage**
+### Input modes
+
+**1. Plain message**
+
+```id="mcpplain"
+send_message(message="Generate invoice")
+```
+
+---
+
+**2. Structured input (State Bridge)**
+
+```id="mcpstructured"
+send_message(
+  step_description="Generate invoice",
+  state={ amount: 100, currency: "USD" },
+  context="Checkout flow",
+  constraint="Amount must be valid"
+)
+```
+
+Structured input is converted into a natural-language message before execution.
+
+---
+
+### Flags
+
+* `workflow_end` — terminates workflow (Workflow mode only)
+* `stateless` — executes outside workflow (Workflow mode only)
+
+Rules:
+
+* Cannot use both together
+* Both are rejected in Agent mode
+
+---
+
+### Usage
 
 * Connect via any MCP-compatible client
 * Send a message using `send_message`
 * Context Layer handles execution, enforcement, and response
 
 No wrapper required.
+
+---
+
+## Authority reports
+
+When a workflow is terminated (explicitly or via inactivity), Context Layer generates an authority report.
+
+* Stored for 30 days
+* Automatically cleaned up after expiry
+* Available for inspection and debugging
+
+---
+
+## Session lifecycle
+
+In Agent mode:
+
+* Sessions persist across calls
+* Automatically terminate after inactivity (~2 hours)
+* Finalization triggers authority report generation
 
 ---
 
@@ -269,3 +376,4 @@ Context Layer never accesses your LLM API keys directly.
 * [Documentation](https://cl.kaisek.com/docs)
 * [Runtime Contract](https://cl.kaisek.com/docs/runtime-contract)
 * [Why Context Layer](https://cl.kaisek.com/why-context-layer)
+
