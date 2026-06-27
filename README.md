@@ -43,4 +43,4 @@ To get an invite token, contact [ritwik@kaisek.com](mailto:ritwik@kaisek.com).
 
 ## Status
 
-v0.0.1 — early access. Invite only.
+v0.0.1. Early access. Invite only.
