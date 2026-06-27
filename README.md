@@ -28,7 +28,7 @@ You add, edit, or delete decisions as your session evolves. When you change your
 2. Run `CL: Set Invite Token` from the command palette and enter your token
 3. Open a workspace folder
 
-To get an invite token, contact [ritwik@kaisek.com](mailto:ritwik@kaisek.com).
+To get an invite token, contact [contextlayerkaisek@gmail.com](mailto:contextlayerkaisek@gmail.com).
 
 ---
 
